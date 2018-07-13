@@ -1,5 +1,5 @@
 {
-  "name": "ha-redis",
+  "name": "ha-store-redis",
   "version": "1.0.0-alpha1",
   "description": "A Redis adapter for ha-store",
   "main": "index.js",
