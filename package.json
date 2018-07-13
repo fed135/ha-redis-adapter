@@ -1,0 +1,25 @@
+{
+  "name": "ha-redis",
+  "version": "1.0.0-alpha1",
+  "description": "A Redis adapter for ha-store",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fed135/ha-redis-adapter.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/fed135/ha-redis-adapter/issues"
+  },
+  "homepage": "https://github.com/fed135/ha-redis-adapter#readme",
+  "dependencies": {
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "ha-store": "^1.0.0-alpha3"
+  }
+}
