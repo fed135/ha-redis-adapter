@@ -8,12 +8,12 @@
 const crypto = require('crypto');
 const redis = require('../../src');
 const store = require('ha-store')({
-    resolver: require('../integration/utils/dao').getAssets,
-    uniqueParams: ['language'],
-    cache: { limit: 60000, steps: 5, base: 5000 },
-    batch: { tick: 10, limit: 10 },
-    retry: { base: 5 },
-    store: redis('//0.0.0.0:6379'),
+  resolver: require('../integration/utils/dao').getAssets,
+  uniqueParams: ['language'],
+  cache: { limit: 60000, steps: 5, base: 5000 },
+  batch: { tick: 10, limit: 10 },
+  retry: { base: 5 },
+  store: redis('//0.0.0.0:6379'),
 });
 const testDuration = 60000;
 const requestDelay = 2;
@@ -28,14 +28,8 @@ const startHeap = process.memoryUsage().heapUsed;
 const languages = ['fr', 'en', 'pr', 'it', 'ge'];
 const now = Date.now();
 
-// store.on('cacheBump', console.log.bind(console, 'cacheBump'));
-// store.on('cacheClear', console.log.bind(console, 'cacheClear'));
-// store.on('retryCancelled', console.log.bind(console, 'retryCancelled'));
 store.on('batch', () => { batches++; });
-// store.on('batchSuccess', console.log.bind(console, 'batchSuccess'));
-// store.on('batchFailed', console.log.bind(console, 'batchFailed'));
 store.on('cacheHit', () => { cacheHits++; });
-// store.on('cacheMiss', console.log.bind(console, 'cacheMiss'));
 
 async function hitStore() {
   if (Date.now() - now < testDuration) {
@@ -70,4 +64,3 @@ async function hitStore() {
 process.on('uncaughtException', console.error)
 
 hitStore();
-

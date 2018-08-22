@@ -7,8 +7,7 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const dao = require('./utils/dao.js');
-//const ha = require('ha-store');
-const ha = require('../../../rest-batcher');
+const ha = require('ha-store');
 const redis = require('../../src/index.js');
 
 /* Tests ---------------------------------------------------------------------*/
