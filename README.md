@@ -7,16 +7,16 @@
 </h3>
 <br/>
 
-[![ha-redis](https://img.shields.io/npm/v/ha-redis.svg)](https://www.npmjs.com/package/ha-redis)
+[![ha-redis](https://img.shields.io/npm/v/ha-store-redis.svg)](https://www.npmjs.com/package/ha-store-redis)
 [![Node](https://img.shields.io/badge/node->%3D8.0-blue.svg)](https://nodejs.org)
-[![Build Status](https://travis-ci.org/fed135/ha-redis.svg?branch=master)](https://travis-ci.org/fed135/ha-redis)
-[![Dependencies Status](https://david-dm.org/fed135/ha-redis.svg)](https://david-dm.org/fed135/ha-redis)
+[![Build Status](https://travis-ci.org/fed135/ha-redis-adapter.svg?branch=master)](https://travis-ci.org/fed135/ha-redis-adapter)
+[![Dependencies Status](https://david-dm.org/fed135/ha-store-redis.svg)](https://david-dm.org/fed135/ha-store-redis)
 
 ---
 
 ## Installing
 
-`npm install ha-redis`
+`npm install ha-store-redis`
 
 
 ## Usage
@@ -24,7 +24,7 @@
 **Store**
 ```node
 const store = require('ha-store');
-const redisStore = require('ha-redis')({ host: 'localhost:3386' });
+const redisStore = require('ha-store-redis')({ host: 'localhost:3386' });
 const itemStore = store({ getter: { method: getItems }, store: redisStore });
 ```
 
@@ -36,7 +36,7 @@ const itemStore = store({ getter: { method: getItems }, store: redisStore });
 
 ## Contribute
 
-Please do! This is an open source project - if you see something that you want, [open an issue](https://github.com/fed135/ha-store/issues/new) or file a pull request.
+Please do! This is an open source project - if you see something that you want, [open an issue](https://github.com/fed135/ha-redis-adapter/issues/new) or file a pull request.
 
 If you have a major change, it would be better to open an issue first so that we can talk about it. 
 
