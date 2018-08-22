@@ -1,6 +1,10 @@
 function getAssets(ids, { language }) {
     return new Promise((resolve, reject) => {
-        setTimeout(() => resolve(ids.map(id => ({ id, language }))), 20);
+        setTimeout(() => resolve(ids.map(id => {
+            const rec = { id };
+            if (language) rec.language = language;
+            return rec;
+        })), (ids.length > 1) ? 130 : 100);
     });
 }
 
@@ -12,7 +16,9 @@ function getEmptyGroup(ids, { language }) {
 
 function getPartialGroup(ids, { language }) {
     return new Promise((resolve, reject) => {
-        setTimeout(() => resolve([{ id: ids[0], language }]), 5);
+        const rec = { id: ids[0] };
+        if (language) rec.language = language;
+        setTimeout(() => resolve([rec]), 5);
     });
 }
 
