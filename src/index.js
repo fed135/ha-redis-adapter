@@ -6,6 +6,7 @@
 
 const redis = require('redis');
 const { promisify } = require('util');
+const { tween } = require('./utils.js');
 
 /* Methods -------------------------------------------------------------------*/
 
@@ -15,14 +16,24 @@ const { promisify } = require('util');
  * @param {EventEmitter} emitter The event-emitter instance for the batcher
  * @param {Map} store A store instance to replace the default in-memory Map
  */
-function redisStore(host, settings) {
-  const connection = redis.createClient(host, settings);
+function redisStore(host) {
+  const connection = redis.createClient(host);
   const store = {
     get: promisify(connection.get).bind(connection),
     set: promisify(connection.set).bind(connection),
+    size: promisify(connection.send_command).bind(connection, 'DBSIZE'),
   };
 
   return (config, emitter) => {
+    const curve = tween(config.cache);
+
+    // Disconnection issues
+    connection.on('error', storePluginErrorHandler);
+
+    function storePluginErrorHandler(err) {
+      connection.close();
+      emitter.emit('storePluginErrored', err);
+    }
 
     /**
      * Performs a query that returns a single entities to be cached
@@ -32,8 +43,18 @@ function redisStore(host, settings) {
      */
     async function get(key) {
       return await store.get(key)
-        .catch(console.error)
-        .then(JSON.parse);
+        .catch(storePluginErrorHandler)
+        .then((res) => {
+          const parsed = JSON.parse(res);
+          if (parsed !== null) {
+            if (Date.now() > parsed.timestamp + curve(parsed.step -1)) {
+              parsed.step += 1;
+              emitter.emit('cacheBump', { key, timestamp: parsed.timestamp, step: parsed.step, expires: now + curve(parsed.step) });
+              store.set(key, JSON.stringify(parsed), 'PX', curve(parsed.step));
+            }
+          }
+          return parsed;
+        });
     }
 
     /**
@@ -45,14 +66,15 @@ function redisStore(host, settings) {
     async function set(recordKey, keys, values, opts) {
       const b = connection.batch();
       const now = Date.now();
+      const stepSize = curve(opts.step);
 
       keys.forEach((id) => {
         let value = { value: values[id] };
-        if (opts && opts.ttl) {
+        if (opts && opts.step !== undefined) {
           value.timestamp = now;
-          b.set(recordKey(id), JSON.stringify(value), 'EX', Math.ceil(opts.ttl / 1000));
+          value.step = opts.step;
+          b.set(recordKey(id), JSON.stringify(value), 'PX', stepSize);
         }
-        else b.set(recordKey(id), JSON.stringify(value));
       });
       return await b.exec()
     }
@@ -72,15 +94,16 @@ function redisStore(host, settings) {
      * @returns {boolean} Wether the key was removed or not 
      */
     function clear(key) {
-      return !!connection.set(key, null, 'EX', 1);
+      return !!connection.set(key, null, 'EX', 1)
+        .catch(storePluginErrorHandler);
     }
 
-    function size() {
-      return 0; // TODO: server_info doesn't alway return db0
-      return connection.server_info.db0.keys; // TODO: select proper db
+    async function size() {
+      return await store.size()
+        .catch(storePluginErrorHandler);
     }
 
-    return { get, set, has, clear, size };
+    return { get, set, has, clear, size, connection };
   };
 }
   

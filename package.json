@@ -1,10 +1,12 @@
 {
   "name": "ha-store-redis",
-  "version": "1.0.0-alpha1",
+  "version": "1.0.0",
   "description": "A Redis adapter for ha-store",
   "main": "src/index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "npm run test:integration",
+    "test:integration": "mocha ./tests/integration --exit",
+    "bench": "node ./tests/profiling/index.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +22,9 @@
     "redis": "^2.8.0"
   },
   "devDependencies": {
-    "ha-store": "^1.0.0-alpha3"
+    "ha-store": "^1.1.0",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "sinon": "^5.1.0"
   }
 }
