@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:integration",
-    "test:integration": "mocha ./tests/integration --exit"
+    "test:integration": "mocha ./tests/integration --exit",
+    "bench": "node ./tests/profiling/index.js"
   },
   "repository": {
     "type": "git",
