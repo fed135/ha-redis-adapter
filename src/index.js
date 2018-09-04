@@ -5,6 +5,7 @@
 /* Requires ------------------------------------------------------------------*/
 
 const redis = require('redis');
+const crypto = require('crypto');
 const { promisify } = require('util');
 const { tween } = require('./utils.js');
 
@@ -26,6 +27,7 @@ function redisStore(host) {
 
   return (config, emitter) => {
     const curve = tween(config.cache);
+    const localKey = crypto.randomBytes(10).toString('hex');
 
     // Disconnection issues
     connection.on('error', storePluginErrorHandler);
@@ -42,15 +44,15 @@ function redisStore(host) {
      * @returns {Promise}
      */
     async function get(key) {
-      return await store.get(key)
+      return await store.get(`${localKey}::${key}`)
         .catch(storePluginErrorHandler)
         .then((res) => {
           const parsed = JSON.parse(res);
           if (parsed !== null) {
             if (Date.now() > parsed.timestamp + curve(parsed.step -1)) {
               parsed.step += 1;
-              emitter.emit('cacheBump', { key, timestamp: parsed.timestamp, step: parsed.step, expires: now + curve(parsed.step) });
-              store.set(key, JSON.stringify(parsed), 'PX', curve(parsed.step));
+              emitter.emit('cacheBump', { localKey: `${localKey}::${key}`, key, timestamp: parsed.timestamp, step: parsed.step, expires: now + curve(parsed.step) });
+              store.set(`${localKey}::${key}`, JSON.stringify(parsed), 'PX', curve(parsed.step));
             }
           }
           return parsed;
@@ -73,19 +75,10 @@ function redisStore(host) {
         if (opts && opts.step !== undefined) {
           value.timestamp = now;
           value.step = opts.step;
-          b.set(recordKey(id), JSON.stringify(value), 'PX', stepSize);
+          b.set(`${localKey}::${recordKey(id)}`, JSON.stringify(value), 'PX', stepSize);
         }
       });
       return await b.exec()
-    }
-
-    /**
-     * Checks if a computed key is present in the store
-     * @param {string} key The key to search for
-     * @returns {boolean} Wether the key is in the store or not 
-     */
-    async function has(key) {
-      return !!(await store.get(key)).catch(console.error);
     }
 
     /**
@@ -94,7 +87,7 @@ function redisStore(host) {
      * @returns {boolean} Wether the key was removed or not 
      */
     function clear(key) {
-      return !!connection.set(key, null, 'EX', 1)
+      return !!connection.set(`${localKey}::${key}`, null, 'EX', 1)
         .catch(storePluginErrorHandler);
     }
 
@@ -103,7 +96,7 @@ function redisStore(host) {
         .catch(storePluginErrorHandler);
     }
 
-    return { get, set, has, clear, size, connection };
+    return { get, set, clear, size, connection };
   };
 }
   
