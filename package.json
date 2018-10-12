@@ -1,6 +1,6 @@
 {
   "name": "ha-store-redis",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A Redis adapter for ha-store",
   "main": "src/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "redis": "^2.8.0"
   },
   "devDependencies": {
-    "ha-store": "^1.4.0",
+    "ha-store": "^1.5.0",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "sinon": "^5.1.0"

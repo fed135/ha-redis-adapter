@@ -1,5 +1,5 @@
 /**
- * Script to run the app for 2 minutes with a steady debit of queries
+ * Script to run the app for N minutes with a steady debit of queries
  * Useful for running profilers
  */
 
@@ -30,6 +30,7 @@ const now = Date.now();
 
 store.on('query', () => { batches++; });
 store.on('cacheHit', () => { cacheHits++; });
+store.on('storePluginErrored', console.log);
 
 async function hitStore() {
   if (Date.now() - now < testDuration) {
