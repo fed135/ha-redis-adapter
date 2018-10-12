@@ -16,7 +16,7 @@ const store = require('ha-store')({
   store: redis('//0.0.0.0:6379'),
 });
 const testDuration = 60000;
-const requestDelay = 2;
+const requestDelay = 0;
 const sampleRange = 2;
 let sum = 0;
 let completed = 0;
@@ -28,7 +28,7 @@ const startHeap = process.memoryUsage().heapUsed;
 const languages = ['fr', 'en', 'pr', 'it', 'ge'];
 const now = Date.now();
 
-store.on('batch', () => { batches++; });
+store.on('query', () => { batches++; });
 store.on('cacheHit', () => { cacheHits++; });
 
 async function hitStore() {
@@ -57,7 +57,7 @@ async function hitStore() {
       });
   }
   else {
-    console.log(`${completed} completed requests\n${cacheHits} cache hits\n${JSON.stringify(await store.size())}\n${timeouts} timed out\navg response time ${(sum / completed).toFixed(3)}\n${batches} batches sent\n${((process.memoryUsage().heapUsed - startHeap) / 1024).toFixed(2)} Kbytes allocated`)
+    console.log(`${completed} completed requests\n${cacheHits} cache hits\n${JSON.stringify(await store.size())}\n${timeouts} timed out\navg response time ${(sum / completed).toFixed(3)}\n${batches} batches sent\n${(((process.memoryUsage().heapUsed - startHeap) || 0) / 1024).toFixed(2)} Kbytes allocated`)
     process.exit(0);
   }
 }

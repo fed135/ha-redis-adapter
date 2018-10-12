@@ -7,10 +7,14 @@
 </h3>
 <br/>
 
-[![ha-redis](https://img.shields.io/npm/v/ha-store-redis.svg)](https://www.npmjs.com/package/ha-store-redis)
+[![ha-store-redis](https://img.shields.io/npm/v/ha-store-redis.svg)](https://www.npmjs.com/package/ha-store-redis)
 [![Node](https://img.shields.io/badge/node->%3D8.0-blue.svg)](https://nodejs.org)
 [![Build Status](https://travis-ci.org/fed135/ha-redis-adapter.svg?branch=master)](https://travis-ci.org/fed135/ha-redis-adapter)
 [![Dependencies Status](https://david-dm.org/fed135/ha-store-redis.svg)](https://david-dm.org/fed135/ha-store-redis)
+
+---
+
+**HA-store-redis** is a plugin to replace the default in-memory storage in [ha-store](https://github.com/fed135/ha-store).
 
 ---
 
@@ -24,8 +28,11 @@
 **Store**
 ```node
 const store = require('ha-store');
-const redisStore = require('ha-store-redis')({ host: 'localhost:3386' });
-const itemStore = store({ getter: { method: getItems }, store: redisStore });
+const redisStore = require('ha-store-redis')('//0.0.0.0:6379');
+const itemStore = store({
+  resolver: getItems,
+  store: redisStore,
+});
 ```
 
 
