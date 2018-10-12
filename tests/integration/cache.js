@@ -17,7 +17,6 @@ describe('Caching', () => {
     let testStore;
     let mockSource;
     afterEach((done) => {
-      testStore._queue.store.connection.send_command('FLUSHDB');
       setTimeout(() => {
         testStore = null;
         mockSource.restore();
@@ -131,7 +130,6 @@ describe('Caching', () => {
     let testStore;
     let mockSource;
     afterEach((done) => {
-      testStore && testStore._queue.store.connection.send_command('FLUSHDB');
       setTimeout(() => {
         testStore = null;
         mockSource.restore();
@@ -168,7 +166,7 @@ describe('Caching', () => {
         });
     });
 
-    it('should support disabled caching', () => {
+    it('should support disabled batching', () => {
       testStore.config.batch = null;
       testStore.get('foo');
       return testStore.get('abc')
@@ -185,7 +183,6 @@ describe('Caching', () => {
     let testStore;
     let mockSource;
     afterEach((done) => {
-      testStore._queue.store.connection.send_command('FLUSHDB');
       setTimeout(() => {
         testStore = null;
         mockSource.restore();
@@ -211,12 +208,12 @@ describe('Caching', () => {
         });
     });
 
-    it('should support disabled caching', () => {
+    it('should support disabled batching', () => {
       testStore.config.batch = null;
       testStore.get('foo');
       return testStore.get('abc')
         .then((result) => {
-          expect(result).to.be.undefined;
+          expect(result).to.deep.equal({ id: 'abc' });
           mockSource.expects('getPartialGroup')
             .once()
             .withArgs(['abc']);
@@ -228,7 +225,6 @@ describe('Caching', () => {
     let testStore;
     let mockSource;
     afterEach((done) => {
-      testStore._queue.store.connection.send_command('FLUSHDB');
       setTimeout(() => {
         testStore = null;
         mockSource.restore();
@@ -278,7 +274,6 @@ describe('Caching', () => {
     let testStore;
     let mockSource;
     afterEach((done) => {
-      testStore._queue.store.connection.send_command('FLUSHDB');
       setTimeout(() => {
         testStore = null;
         mockSource.restore();
@@ -297,7 +292,7 @@ describe('Caching', () => {
     it('should not cache on rejected requests', () => {
       return testStore.get('abc', { language: 'fr' })
         .then(null, (error) => {
-          expect(error).to.deep.equal({ error: 'Something went wrong' });
+          expect(error).to.be.instanceOf(Error).with.property('message', 'Something went wrong');
           mockSource.expects('getErroredRequest')
             .once().withArgs(['abc'], { language: 'fr' });
         });
@@ -307,7 +302,7 @@ describe('Caching', () => {
       testStore.config.batch = null;
       return testStore.get('abc')
         .then(null, (error) => {
-          expect(error).to.deep.equal({ error: 'Something went wrong' });
+          expect(error).to.be.instanceOf(Error).with.property('message', 'Something went wrong');
           mockSource.expects('getErroredRequest')
             .once()
             .withArgs(['abc']);

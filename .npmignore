@@ -1,3 +1,6 @@
 tests
 README.md
 .travis.yml
+.eslintrc
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md

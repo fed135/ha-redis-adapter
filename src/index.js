@@ -20,20 +20,27 @@ const { tween } = require('./utils.js');
 function redisStore(host) {
   const connection = redis.createClient(host);
   const store = {
-    get: promisify(connection.get).bind(connection),
-    set: promisify(connection.set).bind(connection),
-    size: promisify(connection.send_command).bind(connection, 'DBSIZE'),
+    get: promisify(connection.send_command).bind(connection, 'HGET'),
+    set: promisify(connection.send_command).bind(connection, 'HSET'),
+    size: promisify(connection.send_command).bind(connection, 'HLEN'),
+    clear: promisify(connection.send_command).bind(connection, 'HDEL'),
+    clearAll: promisify(connection.send_command).bind(connection, 'DEL'),
   };
 
   return (config, emitter) => {
     const curve = tween(config.cache);
     const localKey = crypto.randomBytes(10).toString('hex');
+    const hashKeyTTL = Math.ceil((curve(config.cache.steps - 1) - curve(config.cache.steps - 2)) * 1.2);
 
     // Disconnection issues
     connection.on('error', storePluginErrorHandler);
 
     function storePluginErrorHandler(err) {
-      connection.close();
+      try {
+        clear('*')
+      }
+      catch(e) {}
+      if (connection && connection.close) connection.close();
       emitter.emit('storePluginErrored', err);
     }
 
@@ -44,18 +51,26 @@ function redisStore(host) {
      * @returns {Promise}
      */
     async function get(key) {
-      return await store.get(`${localKey}::${key}`)
+      return await store.get([localKey, key])
         .catch(storePluginErrorHandler)
         .then((res) => {
-          const parsed = JSON.parse(res);
-          if (parsed !== null) {
-            if (Date.now() > parsed.timestamp + curve(parsed.step -1)) {
-              parsed.step += 1;
-              emitter.emit('cacheBump', { localKey: `${localKey}::${key}`, key, timestamp: parsed.timestamp, step: parsed.step, expires: now + curve(parsed.step) });
-              store.set(`${localKey}::${key}`, JSON.stringify(parsed), 'PX', curve(parsed.step));
+          const record = JSON.parse(res);
+          if (record !== null) {
+            const now = Date.now();
+            const ext = curve(record.step);
+            const ttl = Math.min(record.timestamp + ext, record.timestamp + config.cache.limit);
+            // If expired
+            if (now > ttl || record.step + 1 >= config.cache.steps) {
+              clear(key);
+              return null;
+            }
+            else {
+              record.step = record.step + 1;
+              emitter.emit('cacheBump', { localKey: `${localKey}::${key}`, key, timestamp: record.timestamp, step: record.step, expires: ttl });
+              store.set([localKey, key, JSON.stringify(record)]);
             }
           }
-          return parsed;
+          return record;
         });
     }
 
@@ -68,16 +83,16 @@ function redisStore(host) {
     async function set(recordKey, keys, values, opts) {
       const b = connection.batch();
       const now = Date.now();
-      const stepSize = curve(opts.step);
 
       keys.forEach((id) => {
         let value = { value: values[id] };
         if (opts && opts.step !== undefined) {
           value.timestamp = now;
           value.step = opts.step;
-          b.set(`${localKey}::${recordKey(id)}`, JSON.stringify(value), 'PX', stepSize);
+          b.hset(localKey, recordKey(id), JSON.stringify(value));
         }
       });
+      b.pexpire(localKey, hashKeyTTL);
       return await b.exec()
     }
 
@@ -87,13 +102,18 @@ function redisStore(host) {
      * @returns {boolean} Wether the key was removed or not 
      */
     function clear(key) {
-      return !!connection.set(`${localKey}::${key}`, null, 'EX', 1)
+      if (key === '*') {
+        return !!store.clearAll([localKey])
+          .catch(storePluginErrorHandler);
+      }
+      return !!store.clear([localKey, key])
         .catch(storePluginErrorHandler);
     }
 
     async function size() {
-      return await store.size()
+      const hashLength = await store.size([localKey])
         .catch(storePluginErrorHandler);
+      return hashLength || 0;
     }
 
     return { get, set, clear, size, connection };
