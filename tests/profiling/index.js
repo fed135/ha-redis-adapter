@@ -7,7 +7,7 @@
 
 const crypto = require('crypto');
 const redis = require('../../src');
-const store = require('../../../ha-store')({
+const store = require('ha-store')({
   resolver: require('../integration/utils/dao').getAssets,
   uniqueParams: ['language'],
   cache: { limit: 60000, steps: 5, base: 5000 },
@@ -15,7 +15,7 @@ const store = require('../../../ha-store')({
   retry: { base: 5 },
   store: redis('//0.0.0.0:6379'),
 });
-const testDuration = 6000;
+const testDuration = 60000;
 const requestDelay = 0;
 const sampleRange = 2;
 let sum = 0;
