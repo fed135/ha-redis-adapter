@@ -35,6 +35,30 @@ function redisStore(localKey, host) {
         }, (err) => undefined);
     }
 
+    async function getMulti(recordKey, keys) {
+      return new Promise((resolve, reject) => {
+        const b = connection.multi();
+
+        keys.forEach((id) => {
+          if (id !== undefined) {
+            b.get(`${localKey}:${recordKey(id)}`);
+          }
+        });
+
+        b.exec((err, replies) => {
+          if (err) resolve(keys.map(id => undefined));
+          for (let i = 0; i < replies.length; i++) {
+            const index = keys.findIndex(id => id !== undefined);
+            if (index > -1) {
+              if (replies[i] !== null) keys[index] = JSON.parse(replies[i]);
+              else keys[index] = undefined;
+            }
+          }
+          resolve(keys);
+        });
+      });
+    }
+
     async function set(recordKey, keys, values) {
       const b = connection.multi();
 
@@ -56,7 +80,7 @@ function redisStore(localKey, host) {
       return hashLength || 0;
     }
 
-    return { get, set, clear, size, connection };
+    return { get, getMulti, set, clear, size, connection };
   };
 }
   
