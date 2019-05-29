@@ -28,10 +28,10 @@
 **Store**
 ```node
 const store = require('ha-store');
-const redisStore = require('ha-store-redis')('//0.0.0.0:6379');
+const redisStore = require('ha-store-redis');
 const itemStore = store({
   resolver: getItems,
-  store: redisStore,
+  store: redisStore('my_namespace', '//0.0.0.0:6379'),
 });
 ```
 
