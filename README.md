@@ -28,10 +28,12 @@
 **Store**
 ```node
 const store = require('ha-store');
-const redisStore = require('ha-store-redis')('//0.0.0.0:6379');
+const redisStore = require('ha-store-redis');
 const itemStore = store({
   resolver: getItems,
-  store: redisStore,
+  store: redisStore('my_namespace', [
+    { host: '//0.0.0.0:6379', port: 3970 }
+  ]),
 });
 ```
 
@@ -52,5 +54,5 @@ I am always looking for more maintainers, as well. Get involved.
 
 ## License 
 
-[Apache 2.0](LICENSE) (c) 2018 Frederic Charette
+[Apache 2.0](LICENSE) (c) 2019 Frederic Charette
 
