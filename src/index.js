@@ -52,7 +52,7 @@ function redisStore(localKey, host) {
     }
 
     function clear(key) {
-      return !!store.clear(`${localKey}:${key}`);
+      return !!store.del(`${localKey}:${key}`);
     }
 
     function size() {
