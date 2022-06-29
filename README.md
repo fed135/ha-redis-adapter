@@ -52,5 +52,5 @@ I am always looking for more maintainers, as well. Get involved.
 
 ## License 
 
-[Apache 2.0](LICENSE) (c) 2018 Frederic Charette
+[Apache 2.0](LICENSE) (c) Frederic Charette
 
