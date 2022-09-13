@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/fed135/ha-redis-adapter#readme",
   "dependencies": {
-    "redis": "^4.1.0"
+    "redis": "^4.3.1"
   },
   "devDependencies": {
     "eslint": "^8.18.0",

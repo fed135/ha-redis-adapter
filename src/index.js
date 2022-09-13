@@ -1,23 +1,23 @@
 const redis = require('redis');
 
-function Redis({ connection, localKey, host }) {
+function Redis(localKey, host, connection) {
   return (config) => {
-    let store = connection || redis.createClient(host);
+    let instance = connection || redis.createClient(host);
 
     return {
-      getMulti: getMulti(localKey, store),
-      set: set(localKey, store, config),
-      clear: clear(localKey, store),
-      size: size(store),
-      store,
+      getMulti: getMulti(localKey, instance),
+      set: set(localKey, instance, config),
+      clear: clear(localKey, instance),
+      size: size(instance),
+      store: instance,
     };
   }
 }
 
-function getMulti(localKey, store) {
+function getMulti(localKey, instance) {
   return (recordKey, keys) => {
     return new Promise((resolve) => {
-      const b = store.multi();
+      const b = instance.multi();
 
       keys.forEach((id) => {
         if (id !== undefined) {
@@ -40,24 +40,31 @@ function getMulti(localKey, store) {
   }
 }
 
-function set(localKey, store, config) {
+function set(localKey, instance, config) {
   return (recordKey, keys, values) => {
-    const b = store.multi();
+    const b = instance.multi();
 
     keys.forEach((id) => {
-      b.set(`${localKey}:${recordKey(id)}`, JSON.stringify(values[id]), 'PX', config.cache.ttl);
+      b.set(`${localKey}:${recordKey(id)}`, JSON.stringify(values[id]), 'PX', config.ttl || config.cache.ttl || 0);
     });
     return b.exec();
   }
 }
 
-function clear(localKey, store) {
-  return (key) => !!store.del(`${localKey}:${key}`);
+function clear(localKey, instance) {
+  return (key) => {
+    if (key === '*') return instance.sendCommand('FLUSHDB');
+    return instance.del(`${localKey}:${key}`);
+  }
 }
 
-function size(store) {
-  return () => store.sendCommand(['info', 'keyspace'])
-    .then((reply) => console.log(reply) && reply);
+function size(instance) {
+  return new Promise((resolve, reject) => {
+    instance.sendCommand('DBSIZE', null, (err, res) => {
+      if (err) reject(err);
+      resolve(res);
+    });
+  });
 }
 
 module.exports = Redis;

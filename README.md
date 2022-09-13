@@ -1,22 +1,20 @@
 <h1 align="center">
-  Redis adapter for HA-store
+  <img alt="HA-store" width="300px" src="./logo.png" />
+  <br/>
+  High-Availability store
 </h1>
 <h3 align="center">
-    Why not redis ?
+  Efficient data fetching
   <br/><br/><br/>
 </h3>
 <br/>
 
 [![ha-store-redis](https://img.shields.io/npm/v/ha-store-redis.svg)](https://www.npmjs.com/package/ha-store-redis)
-[![Node](https://img.shields.io/badge/node->%3D8.0-blue.svg)](https://nodejs.org)
-[![Build Status](https://travis-ci.org/fed135/ha-redis-adapter.svg?branch=master)](https://travis-ci.org/fed135/ha-redis-adapter)
 [![Dependencies Status](https://david-dm.org/fed135/ha-store-redis.svg)](https://david-dm.org/fed135/ha-store-redis)
 
 ---
 
-**HA-store-redis** is a plugin to replace the default in-memory storage in [ha-store](https://github.com/fed135/ha-store).
-
----
+A redis storage plugin for [ha-store](https://www.npmjs.com/package/ha-store).
 
 ## Installing
 
@@ -28,10 +26,40 @@
 **Store**
 ```node
 const store = require('ha-store');
-const redisStore = require('ha-store-redis');
+const local = require('ha-store/stores/in-memory');
+const remote = require('ha-store-redis');
+
+// v4.x.x
 const itemStore = store({
   resolver: getItems,
-  store: redisStore('my_namespace', '//0.0.0.0:6379'),
+  cache: {
+    enabled: true,
+    tiers: [
+      {store: local},
+      {store: remote('my_namespace', '//0.0.0.0:6379')},
+    ],
+  },
+});
+
+// v3.x.x
+const itemStore = store({
+  resolver: getItems,
+  store: remote('my_namespace', '//0.0.0.0:6379'),
+});
+```
+
+It now also supports passing an existing connection object.
+
+```node
+const redis = require('redis');
+const store = require('ha-store');
+const remote = require('ha-store-redis');
+
+const client = redis.createClient('//0.0.0.0:6379');
+
+const itemStore = store({
+  resolver: getItems,
+  store: remote('my_namespace', null, client),
 });
 ```
 
@@ -40,6 +68,9 @@ const itemStore = store({
 
 `npm test`
 
+## Compatibility
+
+This is backwards-compatible with v3.x.x of ha-store. 
 
 ## Contribute
 
