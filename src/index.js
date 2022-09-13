@@ -3,6 +3,7 @@ const redis = require('redis');
 function Redis(localKey, host, connection) {
   return (config) => {
     let instance = connection || redis.createClient(host);
+    instance.connect();
 
     return {
       getMulti: getMulti(localKey, instance),
