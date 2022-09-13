@@ -6,6 +6,7 @@ function Redis(localKey, host, connection) {
     instance.connect();
 
     return {
+      get: get(localKey, instance),
       getMulti: getMulti(localKey, instance),
       set: set(localKey, instance, config),
       clear: clear(localKey, instance),
@@ -13,6 +14,12 @@ function Redis(localKey, host, connection) {
       store: instance,
     };
   }
+}
+
+function get(localKey, instance) {
+  return (key) => {
+    return instance.get(`${localKey}:${key}`);
+  };
 }
 
 function getMulti(localKey, instance) {

@@ -12,7 +12,7 @@ const redis = require('../../src/index.js');
 
 /* Tests ---------------------------------------------------------------------*/
 
-describe('Caching', () => {
+describe.skip('Caching', () => {
   describe('Happy responses', () => {
     let testStore;
     let mockSource;
