@@ -18,11 +18,7 @@ function Redis(localKey, host, connection) {
 
 function get(localKey, instance) {
   return (key) => {
-    console.log(key)
-    return instance.get(`${localKey}:${key}`).then((val) => {
-      console.log(val);
-      return val;
-    });
+    return instance.get(`${localKey}:${key}`)
   };
 }
 
@@ -59,7 +55,6 @@ function set(localKey, instance, config) {
     keys.forEach((id) => {
       b.set(`${localKey}:${recordKey(id)}`, JSON.stringify(values[id]), 'PX', config.ttl || config.cache.ttl || 0);
     });
-    console.log('about to set ', keys)
     return b.exec();
   }
 }
