@@ -1,7 +1,7 @@
 const redis = require('redis');
 
 function Redis(localKey, host, connection) {
-  return (config) => {
+  return function RedisStore(config) {
     let instance = connection || redis.createClient(host);
     instance.connect();
 
@@ -24,27 +24,7 @@ function get(localKey, instance) {
 
 function getMulti(localKey, instance) {
   return (recordKey, keys) => {
-    return new Promise((resolve) => {
-      const b = instance.multi();
-
-      keys.forEach((id) => {
-        if (id !== undefined) {
-          b.get(`${localKey}:${recordKey(id)}`);
-        }
-      });
-
-      b.exec((err, replies) => {
-        if (err) resolve(keys.map(id => undefined));
-        for (let i = 0; i < replies.length; i++) {
-          const index = keys.findIndex(id => id !== undefined);
-          if (index > -1) {
-            if (replies[i] !== null) keys[index] = JSON.parse(replies[i]);
-            else keys[index] = undefined;
-          }
-        }
-        resolve(keys);
-      });
-    });
+    return instance.mGet(keys.map((id) => `${localKey}:${recordKey(id)}`));
   }
 }
 
@@ -61,18 +41,13 @@ function set(localKey, instance, config) {
 
 function clear(localKey, instance) {
   return (key) => {
-    if (key === '*') return instance.sendCommand('FLUSHDB');
+    if (key === '*') return instance.sendCommand(['FLUSHDB']);
     return instance.del(`${localKey}:${key}`);
   }
 }
 
 function size(instance) {
-  return new Promise((resolve, reject) => {
-    instance.sendCommand('DBSIZE', null, (err, res) => {
-      if (err) reject(err);
-      resolve(res);
-    });
-  });
+  return () => instance.sendCommand(['DBSIZE']);
 }
 
 module.exports = Redis;
