@@ -26,9 +26,9 @@ describe('Caching', () => {
     beforeEach(() => {
       mockSource = sinon.mock(dao);
       testStore = ha({
-        uniqueParams: ['language'],
+        delimiter: ['language'],
         resolver: dao.getAssets,
-        store: redis('//0.0.0.0:6379'),
+        store: redis(Math.random() * 0xffffff, '//0.0.0.0:6379'),
       });
     });
 
@@ -139,9 +139,9 @@ describe('Caching', () => {
     beforeEach(() => {
       mockSource = sinon.mock(dao);
       testStore = ha({
-        uniqueParams: ['language'],
+        delimiter: ['language'],
         resolver: dao.getEmptyGroup,
-        store: redis('//0.0.0.0:6379'),
+        store: redis(Math.random() * 0xffffff, '//0.0.0.0:6379'),
       });
     });
 
@@ -192,9 +192,9 @@ describe('Caching', () => {
     beforeEach(() => {
       mockSource = sinon.mock(dao);
       testStore = ha({
-        uniqueParams: ['language'],
+        delimiter: ['language'],
         resolver: dao.getPartialGroup,
-        store: redis('//0.0.0.0:6379'),
+        store: redis(Math.random() * 0xffffff, '//0.0.0.0:6379'),
       });
     });
 
@@ -234,9 +234,9 @@ describe('Caching', () => {
     beforeEach(() => {
       mockSource = sinon.mock(dao);
       testStore = ha({
-        uniqueParams: ['language'],
+        delimiter: ['language'],
         resolver: dao.getFailedRequest,
-        store: redis('//0.0.0.0:6379'),
+        store: redis(Math.random() * 0xffffff, '//0.0.0.0:6379'),
       });
     });
 
@@ -283,9 +283,9 @@ describe('Caching', () => {
     beforeEach(() => {
       mockSource = sinon.mock(dao);
       testStore = ha({
-        uniqueParams: ['language'],
+        delimiter: ['language'],
         resolver: dao.getErroredRequest,
-        store: redis('//0.0.0.0:6379'),
+        store: redis(Math.random() * 0xffffff, '//0.0.0.0:6379'),
       });
     });
 

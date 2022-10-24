@@ -1,9 +1,11 @@
 {
-  "name": "ha-store-redis",
-  "version": "2.0.2",
-  "description": "A Redis adapter for ha-store",
+  "name": "@ha-store/redis",
+  "version": "4.0.0",
+  "description": "A Redis storage connector for ha-store",
   "main": "src/index.js",
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "npm run test:integration",
     "test:integration": "mocha ./tests/integration --exit",
     "bench": "node ./tests/profiling/index.js"
@@ -12,19 +14,20 @@
     "type": "git",
     "url": "git+https://github.com/fed135/ha-redis-adapter.git"
   },
-  "author": "",
+  "author": "frederic charette <fredericcharette@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/fed135/ha-redis-adapter/issues"
   },
   "homepage": "https://github.com/fed135/ha-redis-adapter#readme",
   "dependencies": {
-    "redis": "^2.8.0"
+    "redis": "^4.3.1"
   },
   "devDependencies": {
-    "ha-store": "^2.0.1",
-    "chai": "^4.2.0",
-    "mocha": "^6.1.0",
-    "sinon": "^7.3.0"
+    "eslint": "^8.18.0",
+    "ha-store": "^3.2.0",
+    "chai": "^4.3.0",
+    "mocha": "^10.0.0",
+    "sinon": "^14.0.0"
   }
 }

@@ -10,10 +10,10 @@ const redis = require('../../src');
 const store = require('ha-store')({
   resolver: require('../integration/utils/dao').getAssets,
   uniqueParams: ['language'],
-  cache: { limit: 60000, steps: 5, base: 5000 },
-  batch: { tick: 10, limit: 10 },
-  retry: { base: 5 },
-  store: redis('//0.0.0.0:6379'),
+  cache: { enabled: true, tiers: [
+    {store: redis('//0.0.0.0:6379')},
+  ]},
+  batch: { tick: 10, limit: 10, enabled: true },
 });
 const testDuration = 60000;
 const requestDelay = 0;

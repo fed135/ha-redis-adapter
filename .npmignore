@@ -1,6 +1,7 @@
 tests
-README.md
-.travis.yml
+.github
 .eslintrc
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
+yarn.lock
+logo.png
