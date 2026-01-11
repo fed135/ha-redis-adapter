@@ -1,3 +1,5 @@
+# !DEPRECATED AS OF HA-STORE v5.x! - Please use the internal caches.redis module
+
 <h1 align="center">
   <img alt="HA-store" width="300px" src="./logo.png" />
   <br/>
